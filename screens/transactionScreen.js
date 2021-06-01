@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput,KeyboardAvoidingView, Alert,ToastAndroid} from 'react-native';
 import * as Permissions from 'expo-permissions';
 import {BarCodeScanner} from 'expo-barcode-scanner'
 import db from "../config"
@@ -52,10 +52,12 @@ export default class TransactionScreen extends Component{
       if(book.bookAvail){
         this.initiateBookIssue();
         transactionMessage= "Book Issued"
+         ToastAndroid.show(transactionMessage,ToastAndroid.SHORT)
       }
       else{
         this.initiateBookReturn();
         transactionMessage= "Book Returned" 
+         ToastAndroid.show(transactionMessage,ToastAndroid.SHORT)
       }
       console.log(doc.data())
     })
@@ -123,8 +125,7 @@ export default class TransactionScreen extends Component{
     else if(this.state.buttonState==="normal"){
       return(
       
-        <View style={styles.container}>
-
+        <KeyboardAvoidingView style={styles.container} behavior="padding" enabled>
           <Image source={require("../assets/booklogo.jpg")} style={{width:150,height:150}}/>
 
           <Text style={{alignSelf:"center"}}>Willy App</Text>
@@ -162,7 +163,7 @@ export default class TransactionScreen extends Component{
           <Text style={styles.displayText}>SUBMIT </Text>
           </TouchableOpacity>
           </View>
-        </View>
+          </KeyboardAvoidingView>
       )
     }
   }
