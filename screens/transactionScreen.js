@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput} from 'react
 import * as Permissions from 'expo-permissions';
 import {BarCodeScanner} from 'expo-barcode-scanner'
 import db from "../config"
+import firebase from 'firebase'
 import { askAsync } from 'expo-permissions';
 
 export default class TransactionScreen extends Component{
@@ -63,11 +64,12 @@ export default class TransactionScreen extends Component{
     })
   }
   initiateBookIssue=async() => {
+    var date= await firebase.firestore.Timestamp.now().toDate()
     //add transaction
     db.collection("transaction").add({
       studentId:this.state.scannedStudentId,
       bookId:this.state.scannedBookId,
-      date: firebase.firestore.TimeStamp.now().toDate(),
+      date: date,
       transactionType: "Issue"
     })
     //change book status
@@ -75,20 +77,22 @@ export default class TransactionScreen extends Component{
       bookAvail:false
     })
     //change no of book issued to student
-    db.collection("books").doc(this.state.scannedStudentId).update({
-      numberOfBookIssued:firebase.firestore.FieldValue.increment(1)
+    db.collection("students").doc(this.state.scannedStudentId).update({
+      noOfBookIssued:firebase.firestore.FieldValue.increment(1)
     })
+    alert("Book Issued")
     this.setState({
       scannedBookId:"",
       scannedStudentId:""
     })
   }
   initiateBookReturn=async() => {
+    var date= await firebase.firestore.Timestamp.now().toDate()
     //add transaction
     db.collection("transaction").add({
       studentId:this.state.scannedStudentId,
       bookId:this.state.scannedBookId,
-      date: firebase.firestore.TimeStamp.now().toDate(),
+      date: date,
       transactionType: "Return"
     })
     //change book status
@@ -96,9 +100,10 @@ export default class TransactionScreen extends Component{
       bookAvail:true
     })
     //change no of book issued to student
-    db.collection("books").doc(this.state.scannedStudentId).update({
-      numberOfBookIssued:firebase.firestore.FieldValue.increment(-1)
+    db.collection("students").doc(this.state.scannedStudentId).update({
+      noOfBookIssued:firebase.firestore.FieldValue.increment(-1)
     })
+    alert("Book Returned")
     this.setState({
       scannedBookId:"",
       scannedStudentId:""
@@ -128,7 +133,8 @@ export default class TransactionScreen extends Component{
             <TextInput 
             style={styles.InputBox} 
             placeholder = 'BookId' 
-            value={this.state.scannedBookId}/>
+            value={this.state.scannedBookId}
+            onChangeText={text=> {this.setState({scannedBookId:text})}}/>
           <TouchableOpacity 
           style={styles.scannedButton}
            onPress={()=>{this.getCameraPermission("BookId")}}>
@@ -140,7 +146,8 @@ export default class TransactionScreen extends Component{
             <TextInput
              style={styles.InputBox} 
              placeholder = 'StudentId' 
-             value={this.state.scannedStudentId}/>
+             value={this.state.scannedStudentId}
+             onChangeText={text=> {this.setState({scannedStudentId:text})}}/>
           <TouchableOpacity 
           style={styles.scannedButton} 
           onPress={()=>{this.getCameraPermission("StudentId")}}>
